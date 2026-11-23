@@ -1,0 +1,47 @@
+{
+    "name": "brain-tumor",
+    "n_gpu": 1,
+    "arch": {
+        "type": "ResNet152",
+        "args": {
+            "use_pretrained": true,
+            "num_classes": 3
+        }
+    },
+    "data_processing": {
+        "type": "BrainMRIDataLoader",
+        "args": {
+            "mode": "train",
+            "data_dir": "processed_scan_images_mri",
+            "batch_size": 16,
+            "shuffle": true,
+            "validation_split": 0.0,
+            "num_workers": 0,
+            "weighted_sampling": true
+        }
+    },
+    "optimizer": {
+        "type": "SGD",
+        "args": {
+            "lr": 0.0003,
+            "momentum": 0.9,
+            "weight_decay": 0.005,
+            "nesterov": true
+        }
+    },
+    "loss": "cross_entropy_loss",
+    "metrics": [
+        "accuracy",
+        "macro_f1"
+    ],
+    "lr_scheduler": null,
+    "trainer": {
+        "epochs": 10,
+        "save_dir": "saved/",
+        "save_period": 1,
+        "verbosity": 2,
+        "monitor": "max val_accuracy",
+        "early_stop": 10,
+        "tensorboardX": true
+    }
+}

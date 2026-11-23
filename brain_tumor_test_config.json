@@ -1,0 +1,29 @@
+{
+    "name": "brain-tumor-test",
+    "n_gpu": 1,
+    "arch": {
+        "type": "ResNet34",
+        "args": {
+            "use_pretrained": false,
+            "num_classes": 3
+        }
+    },
+    "data_processing": {
+        "type": "BrainMRIDataLoader",
+        "args": {
+            "mode": "test",
+            "data_dir": "processed_scan_images_mri",
+            "batch_size": 32,
+            "shuffle": false,
+            "validation_split": 0.0,
+            "num_workers": 0,
+            "weighted_sampling": false
+        }
+    },
+    "loss": "cross_entropy_loss",
+    "metrics": [
+        "accuracy",
+        "macro_f1"
+    ],
+    "log_dir": "saved/"
+}

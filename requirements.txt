@@ -1,0 +1,16 @@
+# Brain Tumour classification project
+# Python 3.14.8 | macOS arm64 | PyTorch CPU/MPS build
+
+# Direct imports and project frameworks
+numpy==2.5.4
+opencv-python==5.0.0.93
+pillow==13.0.0
+scikit-image==0.26.0
+scikit-learn==1.9.1
+scipy==1.18.1
+matplotlib==3.11.2
+optuna==5.0.0
+torch==2.15.0
+torchvision==0.29.2
+tensorboardX==2.6.5
+tqdm==4.70.1
