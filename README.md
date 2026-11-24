@@ -88,6 +88,11 @@ print("MPS:", torch.backends.mps.is_available())
 PY
 ```
 
+## Dataset
+
+Download the **Brain Tumor MRI Dataset** from [Kaggle](https://www.kaggle.com/datasets/denizkavi1/brain-tumor/data).
+
+
 ## Prepare the MRI data
 
 Run every preprocessing cell in `data_processing/data_analysis.ipynb`. It creates:
