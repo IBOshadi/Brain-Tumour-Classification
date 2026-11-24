@@ -2,7 +2,6 @@
 
 A PyTorch image-classification project for identifying three types of brain tumors from MRI scans: **meningioma**, **glioma**, and **pituitary tumor**. The project provides preprocessing, training, testing, hyperparameter tuning, architecture search, experiment logging, and report generation.
 
-![Training](images/training.PNG)
 
 ## Dataset and classes
 
