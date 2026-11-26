@@ -111,7 +111,6 @@ processed_scan_images/
 processed_scan_images_mri/
 reports/
 scan_images/
-training_log.csv
 
 # editor, os cache directory
 .vscode/
