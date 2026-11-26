@@ -132,7 +132,7 @@ python train.py -c brain_tumor_train_config.json --arch EfficientNetB0 --lr 0.00
 - `-r` or `--resume`: resumes from a compatible saved checkpoint
 - `-d`: sets visible GPU device indices
 
-Training writes each run to `saved/training/<experiment>/<timestamp>/`. A run contains the model checkpoint(s), `train_config.json`, `metrics.json`, and logs. Epoch metrics are also appended to `training_log.csv`.
+Training writes each run to `saved/training/<experiment>/<timestamp>/`. A run contains the model checkpoint(s), `train_config.json`, `metrics.json`, and logs. Epoch metrics are also appended to `training_log.csv`; accuracy and Macro-F1 are calculated over all predictions and labels in the epoch, not averaged from per-batch scores.
 
 To resume, the checkpoint architecture and configuration must match the original run:
 
@@ -193,6 +193,19 @@ python test.py -c brain_tumor_test_config.json \
 ```
 
 The architecture passed at test time must match the checkpoint. Testing writes a run snapshot under `saved/testing/` and appends test timing and metric fields to `training_log.csv`.
+
+## Prediction GUI
+
+Launch the desktop interface for uploading an MRI image and viewing the
+best AutoML EfficientNetB0 prediction:
+
+```bash
+python prediction_gui/app.py
+```
+
+See [prediction_gui/README.md](prediction_gui/README.md) for the checkpoint
+location and usage notes. The output is for research/demo use, not a medical
+diagnosis.
 
 ## Evaluation reports
 

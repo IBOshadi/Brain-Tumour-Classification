@@ -30,6 +30,16 @@ class Trainer(BaseTrainer):
             self.writer.add_scalar('{}'.format(metric.__name__), acc_metrics[i])
         return acc_metrics
 
+    def _aggregate_metrics(self, outputs, targets):
+        if not outputs:
+            raise ValueError("Cannot calculate epoch metrics without any samples.")
+        all_outputs = torch.cat(outputs)
+        all_targets = torch.cat(targets)
+        return np.asarray(
+            [metric(all_outputs, all_targets) for metric in self.metrics],
+            dtype=float,
+        ).tolist()
+
     def _train_epoch(self, epoch):
         """
         Training logic for an epoch
@@ -51,7 +61,8 @@ class Trainer(BaseTrainer):
         training_started_at = time.perf_counter()
 
         total_loss = 0
-        total_metrics = np.zeros(len(self.metrics))
+        metric_outputs = []
+        metric_targets = []
         for batch_idx, (data, target) in enumerate(self.data_loader):
             # print("Target:", target)
             # print("Target:", target)
@@ -66,7 +77,9 @@ class Trainer(BaseTrainer):
             self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
             self.writer.add_scalar('loss', loss.item())
             total_loss += loss.item()
-            total_metrics += self._eval_metrics(output, target)
+            self._eval_metrics(output, target)
+            metric_outputs.append(output.detach().cpu())
+            metric_targets.append(target.detach().cpu())
 
             if self.lr_scheduler:
                 self.lr_scheduler.step()
@@ -84,7 +97,7 @@ class Trainer(BaseTrainer):
         training_seconds = time.perf_counter() - training_started_at
         log = {
             'loss': total_loss / len(self.data_loader),
-            'metrics': (total_metrics / len(self.data_loader)).tolist(),
+            'metrics': self._aggregate_metrics(metric_outputs, metric_targets),
             'training_seconds': training_seconds,
             'validation_seconds': 0.0,
         }
@@ -109,7 +122,8 @@ class Trainer(BaseTrainer):
         validation_started_at = time.perf_counter()
         self.model.eval()
         total_val_loss = 0
-        total_val_metrics = np.zeros(len(self.metrics))
+        metric_outputs = []
+        metric_targets = []
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
@@ -120,7 +134,9 @@ class Trainer(BaseTrainer):
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.writer.add_scalar('loss', loss.item())
                 total_val_loss += loss.item()
-                total_val_metrics += self._eval_metrics(output, target)
+                self._eval_metrics(output, target)
+                metric_outputs.append(output.cpu())
+                metric_targets.append(target.cpu())
                 # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
         synchronize_device(self.device)
@@ -132,6 +148,6 @@ class Trainer(BaseTrainer):
 
         return {
             'val_loss': total_val_loss / len(self.valid_data_loader),
-            'val_metrics': (total_val_metrics / len(self.valid_data_loader)).tolist(),
+            'val_metrics': self._aggregate_metrics(metric_outputs, metric_targets),
             'validation_seconds': validation_seconds,
         }

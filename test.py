@@ -52,12 +52,14 @@ def main(config, resume):
     model.eval()
 
     total_loss = 0.0
-    total_metrics = torch.zeros(len(metric_fns))
+    all_outputs = []
+    all_targets = []
+    n_samples = 0
     inference_seconds = 0.0
     test_started_at = time.perf_counter()
 
     with torch.no_grad():
-        for i, (data, target) in enumerate(tqdm(data_loader)):
+        for data, target in tqdm(data_loader):
             data, target = data.to(device), target.to(device)
             synchronize_device(device)
             inference_started_at = time.perf_counter()
@@ -68,15 +70,20 @@ def main(config, resume):
             # computing loss, metrics on test set
             batch_size = data.shape[0]
             total_loss += loss_fn(output, target).item() * batch_size
-            for i, metric in enumerate(metric_fns):
-                total_metrics[i] += metric(output, target) * batch_size
+            n_samples += batch_size
+            all_outputs.append(output.cpu())
+            all_targets.append(target.cpu())
 
-    n_samples = len(data_loader.sampler)
+    if n_samples == 0:
+        raise ValueError("The test data loader did not yield any samples.")
+
+    all_outputs = torch.cat(all_outputs)
+    all_targets = torch.cat(all_targets)
     test_seconds = time.perf_counter() - test_started_at
     run_elapsed_seconds = time.perf_counter() - run_started_at
     log = {'test_loss': total_loss / n_samples}
     log.update({
-        met.__name__: total_metrics[i].item() / n_samples for i, met in enumerate(metric_fns)
+        met.__name__: float(met(all_outputs, all_targets)) for met in metric_fns
     })
     log.update({
         'test_seconds': test_seconds,

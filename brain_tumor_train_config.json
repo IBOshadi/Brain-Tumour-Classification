@@ -2,7 +2,7 @@
     "name": "brain-tumor",
     "n_gpu": 1,
     "arch": {
-        "type": "ResNet152",
+        "type": "ResNet18",
         "args": {
             "use_pretrained": true,
             "num_classes": 3
@@ -21,12 +21,10 @@
         }
     },
     "optimizer": {
-        "type": "SGD",
+        "type": "Adam",
         "args": {
             "lr": 0.0003,
-            "momentum": 0.9,
-            "weight_decay": 0.005,
-            "nesterov": true
+            "weight_decay": 0.005
         }
     },
     "loss": "cross_entropy_loss",
